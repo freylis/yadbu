@@ -9,9 +9,14 @@ class File(models.Model):
 
     filename = models.TextField(
         _('Filename'),
-        help_text='Full filename or mask, '
-                  'like `/path/to/file/my_backup.sql`, `/path/to/folder/*` or `/path/to/folder/*.jpeg`'
+        help_text='Full filename or mask, like '
+                  '`/path/to/file/my_backup.sql`, '
+                  '`/path/to/folder/*` or '
+                  '`/path/to/folder/*.jpeg`'
     )
+
+    def __str__(self):
+        return self.filename.strip()
 
 
 class Backup(models.Model):

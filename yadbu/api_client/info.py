@@ -6,4 +6,8 @@ def get_disk_info():
         '',
         with_auth=True,
     )
-    return response_data
+    return {
+        'total_space': response_data['total_space'],
+        'used_space': response_data['used_space'],
+        'trash_space': response_data['trash_size'],
+    }
