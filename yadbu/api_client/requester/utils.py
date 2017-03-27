@@ -11,6 +11,7 @@ _errors_mapping = {
     400: errors.BadData,
     403: errors.Forbidden,
     404: errors.NotFound,
+    409: errors.Conflict,
 }
 
 
@@ -24,8 +25,9 @@ def get(url, params=None, **kwargs):
 
 @decorators.ya_auth
 @decorators.wrap_errors
-def put(url, params=None, **kwargs):
-    response = requests.put(URL + url, data=params, **kwargs)
+def put(url, params=None, absolute_url=False, **kwargs):
+    request_url = url if absolute_url else URL + url
+    response = requests.put(request_url, data=params, **kwargs)
     _handle_responses(response)
     return response.json()
 
