@@ -29,7 +29,7 @@ def put(url, params=None, absolute_url=False, **kwargs):
     request_url = url if absolute_url else URL + url
     response = requests.put(request_url, data=params, **kwargs)
     _handle_responses(response)
-    return response.json()
+    return response.json() if response.text != '' else None
 
 
 @decorators.ya_auth

@@ -4,7 +4,7 @@ import datetime
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from yadbu import settings
+from . import settings
 from . import api_client
 
 
@@ -29,9 +29,23 @@ class File(models.Model):
     def backup(self, backup):
         success_count = 0
         errors_count = 0
-        backup_file = BackupFile()
+        backup_file = BackupFile.objects.create(
+            backup=backup,
+            file=self.filename,
+        )
         for filename in self._iter_files():
-           api_client.upload_file(backup.directory_name, filename)
+            exc = None
+            try:
+                api_client.upload_file(backup.directory_name, filename)
+            except Exception as exc:
+                errors_count += 1
+            else:
+                success_count += 1
+            backup_file.write(filename, exc)
+        backup_file.write_total(
+            success_count=success_count,
+            errors_count=errors_count,
+        )
 
     def _iter_files(self):
         path_list = glob.glob(self.filename)
@@ -64,6 +78,12 @@ class Backup(models.Model):
         super().__init__(*args, **kwargs)
         self.directory_name = None
 
+    def __str__(self):
+        return 'Backup {} / {}'.format(
+            self.datetime.strftime('%d.%m.%Y'),
+            self.id,
+        )
+
     @classmethod
     def run(cls):
         self = cls.objects.create(status=cls.STATUS_NEW)
@@ -72,6 +92,7 @@ class Backup(models.Model):
         file_items = File.objects.all()
         for file_item in file_items:
             file_item.backup(self)
+        self.status = cls.STATUS_SUCCESS
         self.save()
 
     def create_backup_directory(self):
@@ -94,4 +115,21 @@ class BackupFile(models.Model):
 
     backup = models.ForeignKey('yadbu.Backup', verbose_name=_('Backup'))
     file = models.TextField(_('File path'))
-    filename = models.TextField(_('Filename'))
+    log = models.TextField(_('Log'), default='')
+
+    def write(self, filename, exc):
+        msg = '{!r} copied {}{}'.format(
+            filename,
+            'success' if exc is None else 'error',
+            '' if exc is None else ': {}'.format(str(exc))
+        )
+        self.log = '{}\n{}'.format(self.log, msg)
+        self.save()
+
+    def write_total(self, success_count, errors_count):
+        msg = 'Backup finished with {} success and {} errors'.format(
+            success_count,
+            errors_count,
+        )
+        self.log = '{}\n{}'.format(msg, self.log)
+        self.save()

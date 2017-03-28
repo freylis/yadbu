@@ -56,13 +56,9 @@ def _get_new_url(future_file_full_path):
 
 
 def _upload_file(url_to_upload, file_path):
-    path_parts = file_path.split(os.path.sep)
     with open(file_path, 'rb') as f:
         response = requester.put(
             url_to_upload,
             absolute_url=True,
-            files={
-                path_parts[-1]: f,
-            },
+            files={'file': f}
         )
-    a = 1
