@@ -1,5 +1,6 @@
 import glob
 import datetime
+import traceback
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -41,7 +42,7 @@ class File(models.Model):
                 errors_count += 1
             else:
                 success_count += 1
-            backup_file.write(filename, exc)
+            backup_file.write_log(filename, exc)
         backup_file.write_total(
             success_count=success_count,
             errors_count=errors_count,
@@ -87,7 +88,6 @@ class Backup(models.Model):
     @classmethod
     def run(cls):
         self = cls.objects.create(status=cls.STATUS_NEW)
-        error = None
         self.create_backup_directory()
         file_items = File.objects.all()
         for file_item in file_items:
@@ -117,11 +117,12 @@ class BackupFile(models.Model):
     file = models.TextField(_('File path'))
     log = models.TextField(_('Log'), default='')
 
-    def write(self, filename, exc):
-        msg = '{!r} copied {}{}'.format(
+    def write_log(self, filename, exc):
+        msg = '{!r} copied {}{}{}'.format(
             filename,
             'success' if exc is None else 'error',
-            '' if exc is None else ': {}'.format(str(exc))
+            '' if exc is None else ': {}'.format(str(exc)),
+            '' if not settings.YADBU_WRITE_TRACEBACK_ON_ERROR else traceback.format_exc(),
         )
         self.log = '{}\n{}'.format(self.log, msg)
         self.save()
