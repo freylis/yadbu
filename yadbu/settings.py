@@ -7,4 +7,5 @@ YADBU_TOKEN = getattr(dj_settings, 'YADBU_TOKEN', None)
 # https://tech.yandex.ru/disk/api/concepts/app-folders-docpage/
 YADBU_BACKUP_DIRECTORY = getattr(dj_settings, 'YADBU_BACKUP_DIRECTORY', 'yadbu')
 
-YADBU_WRITE_TRACEBACK_ON_ERROR = getattr(dj_settings, 'YADBU_WRITE_TRACEBACK_ON_ERROR', True)
+# timeout in seconds
+YADBU_REQUEST_TIMEOUT = getattr(dj_settings, 'YADBU_REQUEST_TIMEOUT', 5)

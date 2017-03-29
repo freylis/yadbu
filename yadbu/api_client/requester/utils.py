@@ -15,7 +15,7 @@ _errors_mapping = {
 }
 
 
-@decorators.ya_auth
+@decorators.ya_request_params
 @decorators.wrap_errors
 def get(url, params=None, **kwargs):
     response = requests.get(URL + url, params=params, **kwargs)
@@ -23,7 +23,7 @@ def get(url, params=None, **kwargs):
     return response.json()
 
 
-@decorators.ya_auth
+@decorators.ya_request_params
 @decorators.wrap_errors
 def put(url, params=None, absolute_url=False, **kwargs):
     request_url = url if absolute_url else URL + url
@@ -32,7 +32,7 @@ def put(url, params=None, absolute_url=False, **kwargs):
     return response.json() if response.text != '' else None
 
 
-@decorators.ya_auth
+@decorators.ya_request_params
 @decorators.wrap_errors
 def post(url, params=None, json=None, **kwargs):
     return requests.post(
@@ -43,7 +43,7 @@ def post(url, params=None, json=None, **kwargs):
     )
 
 
-@decorators.ya_auth
+@decorators.ya_request_params
 @decorators.wrap_errors
 def delete(url, **kwargs):
     return requests.delete(URL + url, **kwargs)
