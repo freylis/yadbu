@@ -7,6 +7,9 @@ class Command(BaseCommand):
     help = 'Backup your files to Yandex.Disk'
 
     def handle(self, *args, **options):
+        """
+        Run new backup process
+        """
         backup = models.Backup.objects.create(status=models.Backup.STATUS_NEW)
         try:
             backup.process()

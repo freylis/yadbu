@@ -52,7 +52,11 @@ def delete(url, **kwargs):
 def _handle_responses(response):
     if response.status_code < 300:
         return
+    error_text = '{}: {}'.format(
+        response.reason,
+        response.text,
+    )
     if response.status_code >= 500:
-        raise errors.InteranalYaDError(response.reason, error_data=response.text)
+        raise errors.InteranalYaDError(error_text)
     if response.status_code in _errors_mapping:
-        raise _errors_mapping[response.status_code](response.reason, error_data=response.json())
+        raise _errors_mapping[response.status_code](error_text)

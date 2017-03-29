@@ -29,12 +29,22 @@ class File(models.Model):
         return self.filename.strip()
 
     def backup(self, backup):
+        """
+        Run backup process for this files
+
+        Args:
+            backup (Backup): Backup instance
+        """
         success_count = 0
         errors_count = 0
+
+        # write in backup for history
         backup_file = BackupFile.objects.create(
             backup=backup,
             file=self.filename,
         )
+
+        # recursively copy each file to y.d
         for filename in self._iter_files(self.filename):
             try:
                 api_client.upload_file(backup.directory_name, filename)
@@ -50,6 +60,15 @@ class File(models.Model):
         )
 
     def _iter_files(self, path):
+        """
+        All files generator
+
+        Args:
+            path (str): path to find all files
+
+        Yields:
+            str: file path with name
+        """
         path_list = glob.glob(path)
         for path_item in path_list:
             if os.path.isfile(path_item):
@@ -77,11 +96,10 @@ class Backup(models.Model):
     datetime = models.DateTimeField(_('Runned at'), auto_now_add=True)
     status = models.CharField(_('Status'), choices=STATUSES, max_length=20, default=STATUS_NEW)
     log = models.TextField(_('Process log'), default='')
-    yad_directory = models.CharField(_('Directory at Yandex.Disk'), max_length=255, null=True, editable=False)
+    directory_name = models.CharField(_('Directory at Yandex.Disk'), max_length=255, null=True, editable=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.directory_name = None
 
     def __str__(self):
         return 'Backup {} / {}'.format(
@@ -90,6 +108,9 @@ class Backup(models.Model):
         )
 
     def process(self):
+        """
+        Run backup process
+        """
         self.create_backup_directory()
         file_items = File.objects.all()
         for file_item in file_items:
@@ -109,6 +130,9 @@ class Backup(models.Model):
         self.save()
 
     def create_backup_directory(self):
+        """
+        All copied files will be in this directory
+        """
         today = datetime.datetime.today()
         self.directory_name = 'backups/{}/{}/{}/{}_{}'.format(
             settings.YADBU_BACKUP_DIRECTORY,
@@ -117,7 +141,6 @@ class Backup(models.Model):
             today.strftime('%d'),
             self.pk,
         )
-        self.yad_directory = api_client.create_folder(self.directory_name)['href']
         self.save()
 
 

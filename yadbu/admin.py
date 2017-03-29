@@ -14,25 +14,27 @@ class BackupFileInline(admin.TabularInline):
 
 
 class BackupAdmin(admin.ModelAdmin):
-    list_display = [
+    list_display = (
         '__str__',
         'status',
         'datetime',
-    ]
-    list_filter = [
+        'directory_name',
+    )
+    list_filter = (
         'status',
         'datetime',
-    ]
-    inlines = [
+    )
+    inlines = (
         BackupFileInline,
-    ]
-    readonly_fields = [
+    )
+    readonly_fields = (
         'log',
         'status',
-    ]
-    ordering = [
+        'directory_name',
+    )
+    ordering = (
         '-datetime',
-    ]
+    )
 admin.site.register(models.Backup, BackupAdmin)
 
 
