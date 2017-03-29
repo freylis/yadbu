@@ -9,3 +9,6 @@ YADBU_BACKUP_DIRECTORY = getattr(dj_settings, 'YADBU_BACKUP_DIRECTORY', 'yadbu')
 
 # timeout in seconds
 YADBU_REQUEST_TIMEOUT = getattr(dj_settings, 'YADBU_REQUEST_TIMEOUT', 5)
+
+YADBU_REPORT_TO_EMAILS = getattr(dj_settings, 'YADBU_REPORT_TO_EMAILS', [])
+YADBU_REPORT_FROM_EMAIL = getattr(dj_settings, 'YADBU_REPORT_FROM_EMAIL', 'yadbu@localhost')

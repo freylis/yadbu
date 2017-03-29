@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from . import settings
 from . import api_client
+from . import utils
 
 
 class File(models.Model):
@@ -111,16 +112,22 @@ class Backup(models.Model):
         """
         Run backup process
         """
-        self.create_backup_directory()
+        self._create_backup_directory()
         file_items = File.objects.all()
         for file_item in file_items:
             try:
                 file_item.backup(self)
             except Exception as exc:
-                self.log_error(exc)
+                self._log_error(exc)
         self.save()
 
-    def log_error(self, exc):
+    def send_report(self):
+        """
+        Send report to email if it necessary
+        """
+        utils.send_report(self, recipients=settings.YADBU_REPORT_TO_EMAILS)
+
+    def _log_error(self, exc):
         self.log = '{}\nBackup error: {}\n{}'.format(
             self.log,
             str(exc),
@@ -129,7 +136,7 @@ class Backup(models.Model):
         self.status = self.STATUS_ERROR
         self.save()
 
-    def create_backup_directory(self):
+    def _create_backup_directory(self):
         """
         All copied files will be in this directory
         """
