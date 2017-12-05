@@ -1,0 +1,8 @@
+{% extends 'admin/app_index.html' %}
+
+{% load yadbu_tags %}
+
+{% block sidebar %}
+    {{ block.super }}
+    {% statistic_block %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% load i18n %}
+
+<h1>{% trans 'Your Yandex.Disk statistic' %}</h1>
+<div>
+    <p>Total size: <strong>{{ total_space|filesizeformat }}</strong></p>
+    <p>Used size: <strong>{{ used_space|filesizeformat }}</strong></p>
+    <p>Trash space: <strong>{{ trash_space|filesizeformat }}</strong></p>
+</div>
